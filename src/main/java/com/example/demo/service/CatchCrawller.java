@@ -4,56 +4,75 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class CatchCrawller {
-    private final static String url = "https://www.catch.co.kr/NCS/RecruitSearch";
+    private static final String url = "https://www.catch.co.kr/NCS/RecruitInformation";
+    private static final String it_tag = "filter_category2";
+    private static final String find_company = "al1";
+    private static final String tbody = "tbody";
+    private static final String employ_info = "box_summary";
     public static void main(String[] args) throws InterruptedException {
+        //드라이버 초기화
         WebDriver driver = ChromeDriverFactory.of();
-        Actions action = new Actions(driver);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofMillis(10000));
+        Actions actions = new Actions(driver);
+
+
         driver.get(url);
-        WebElement element = driver.findElement(By.className("al1")).findElement(By.tagName("a"));
-        System.out.println(element.getAttribute("outerHTML"));
-//        String title = element.findElement(By.tagName("a")).getText();
-        System.out.println(element.getText());
-        System.out.println(driver.getCurrentUrl());
+        //굵직한 태그 찾기
+        List<WebElement> childs =
+                driver
+                        .findElement(By.className(it_tag))
+                        .findElements(By.tagName("a"));
 
-//        System.out.println(element);
-        action.moveToElement(element)
-//                    .click()
-                .pause(Duration.ofMillis(1000))
-                .clickAndHold()
-                .pause(Duration.ofMillis(1000))
-                .perform();
-//.get(0).findElements(By.className("pointc_20"))
-        List<WebElement> elements = driver.findElements(By.tagName("tbody"));
-//        String salary = elements.get(4).getText();
-//        for(WebElement e : elements){
-//            e.findElement(By.className())
-//            System.out.println(e.getText());
-//        }
-//        System.out.println(elements.get(0).getAttribute("outerHTML"));
-        System.out.println(driver.getCurrentUrl());
+        WebElement more = driver
+                .findElement(By.className(it_tag)).findElement(By.tagName("button"));
+
+        wait.until(ExpectedConditions.elementToBeClickable(more));
+        actions.clickAndHold(more).click(more).pause(1L).perform();
+        // it 버튼 찾기
+        Optional<WebElement> it = childs.stream().filter(i -> i.getText().contains("IT")).findFirst();
+        WebElement target = null;
+        if(it.isPresent()){
+            target = it.get();
+        }
 
 
-//        String movetitle = element.findElement(By.tagName("a")).getText();
+        wait.until(ExpectedConditions.elementToBeClickable(target));
+        // 더보기 버튼 누르기
+        actions.moveToElement(target).click(target).pause(Duration.ofMillis(2000)).perform();
 
-//        System.out.println(title + " : " );
-//        System.out.println(title + " : " + salary);
-//        List<WebElement> lists = driver.findElements(By.className("t1"));
-//        for(WebElement element : lists){
-//            action.moveToElement(element)
-//                    .pause(Duration.ofMillis(100))
-//                    .clickAndHold()
-//                    .pause(Duration.ofMillis(100))
-//                    .perform();
-//            String title = driver.getTitle();
-//            String title = driver.findElement(By.className("h2")).getText();
-//            String salary = driver.findElement(By.className("pointc_20")).getText();
-//            System.out.println(title + " : " + salary);
-//        }
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.className(find_company)));
+        // 회사 소개 url 찾기
+        List<WebElement> list = driver.findElements(By.cssSelector("td > a"));
+        List<String> links = new ArrayList<>();
+        for(WebElement e : list){
+            //검색할 주소 찾기
+            links.add(e.getAttribute("href"));
+        }
+        System.out.println(list.size());
+        for(String s : links){
+            System.out.println(s);
+        }
+        /**
+         * 검색할 주소에서
+         * 1. 경력
+         * 2. 학력
+         * 3. 모집부문
+         * 4. 고용형태
+         * 5. 연봉
+         * 6. 근무지역
+         * 위의 정보들을 크롤링 해온다.
+         */
+
+
 
     }
 }
