@@ -17,8 +17,8 @@ public class CatchCrawller {
     private static final String it_tag = "filter_category2";
     private static final String find_company = "al1";
     private static final String tbody = "tbody";
-    private static final String employ_info = "box_summary";
-    public static void main(String[] args) throws InterruptedException {
+    private static final String employ_info = "pointc_20";
+    public static void main(String[] args)  {
         //드라이버 초기화
         WebDriver driver = ChromeDriverFactory.of();
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofMillis(10000));
@@ -27,13 +27,9 @@ public class CatchCrawller {
 
         driver.get(url);
         //굵직한 태그 찾기
-        List<WebElement> childs =
-                driver
-                        .findElement(By.className(it_tag))
-                        .findElements(By.tagName("a"));
+        List<WebElement> childs = driver.findElement(By.className(it_tag)).findElements(By.tagName("a"));
 
-        WebElement more = driver
-                .findElement(By.className(it_tag)).findElement(By.tagName("button"));
+        WebElement more = driver.findElement(By.className(it_tag)).findElement(By.tagName("button"));
 
         wait.until(ExpectedConditions.elementToBeClickable(more));
         actions.clickAndHold(more).click(more).pause(1L).perform();
@@ -53,13 +49,23 @@ public class CatchCrawller {
         // 회사 소개 url 찾기
         List<WebElement> list = driver.findElements(By.cssSelector("td > a"));
         List<String> links = new ArrayList<>();
-        for(WebElement e : list){
+        for(WebElement e : list) {
             //검색할 주소 찾기
             links.add(e.getAttribute("href"));
         }
-        System.out.println(list.size());
-        for(String s : links){
-            System.out.println(s);
+        for(String link : links){
+            driver.get(link);
+            WebElement title = driver.findElement(By.className("tit")).findElement(By.className("h2")).findElement(By.tagName("a"));
+
+            WebElement e = driver.findElement(By.tagName(tbody));
+            List<WebElement> element = e.findElements(By.className(employ_info));
+            wait.until(ExpectedConditions.visibilityOf(e));
+            System.out.println(title.getText());
+            for(WebElement sub : element) {
+                System.out.print(sub.getText() + " ");
+            }
+            System.out.println();
+            driver.navigate().back();
         }
         /**
          * 검색할 주소에서
@@ -72,7 +78,6 @@ public class CatchCrawller {
          * 위의 정보들을 크롤링 해온다.
          */
 
-
-
     }
 }
+
