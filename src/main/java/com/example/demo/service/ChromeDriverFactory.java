@@ -6,7 +6,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 public class ChromeDriverFactory {
     public static ChromeDriver of() {
         ChromeOptions opt = new ChromeOptions();
-//        opt.addArguments("--headless");
+        opt.addArguments("--headless");
         opt.addArguments("--disable-gpu");
         opt.addArguments("--window-size=1920,1080");
         opt.addArguments("--start-maximized");

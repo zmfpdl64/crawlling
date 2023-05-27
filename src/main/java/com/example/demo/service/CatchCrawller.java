@@ -1,24 +1,33 @@
 package com.example.demo.service;
 
+import com.example.demo.domain.entity.CatchEntity;
+import com.example.demo.respository.CatchRepository;
+import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@RequiredArgsConstructor
+@Service
 public class CatchCrawller {
     private static final String url = "https://www.catch.co.kr/NCS/RecruitInformation";
     private static final String it_tag = "filter_category2";
     private static final String find_company = "al1";
     private static final String tbody = "tbody";
     private static final String employ_info = "pointc_20";
-    public static void main(String[] args)  {
+    private final CatchRepository catchRepository;
+      public void getCatchPost(){
         //드라이버 초기화
         WebDriver driver = ChromeDriverFactory.of();
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofMillis(10000));
@@ -60,11 +69,11 @@ public class CatchCrawller {
             WebElement e = driver.findElement(By.tagName(tbody));
             List<WebElement> element = e.findElements(By.className(employ_info));
             wait.until(ExpectedConditions.visibilityOf(e));
-            System.out.println(title.getText());
-            for(WebElement sub : element) {
-                System.out.print(sub.getText() + " ");
-            }
-            System.out.println();
+
+            List<String> info = element.stream().map(WebElement::getText).toList();
+            CatchEntity catchEntity = CatchEntity.of(title.getText(), info.get(0), info.get(1), info.get(2), info.get(3), info.get(4), info.get(5));
+            catchRepository.save(catchEntity);
+
             driver.navigate().back();
         }
         /**
@@ -78,6 +87,9 @@ public class CatchCrawller {
          * 위의 정보들을 크롤링 해온다.
          */
 
+    }
+    public Page<CatchEntity> getPost(Pageable pageable){
+        return catchRepository.findAll(pageable);
     }
 }
 
