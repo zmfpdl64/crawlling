@@ -1,11 +1,14 @@
 package com.example.demo.controller;
 
+import com.example.demo.domain.entity.CatchEntity;
 import com.example.demo.domain.entity.Hola;
 import com.example.demo.respository.HolaRepsitory;
+import com.example.demo.service.CatchCrawller;
 import com.example.demo.service.Crawlling;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.JSONPObject;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.Response;
@@ -27,6 +30,7 @@ public class UserController {
 
     private final Crawlling crawlling;
     private final HolaRepsitory holaRepsitory;
+    private final CatchCrawller catchCrawller;
 
     @GetMapping("/")
     public ResponseEntity<Page<Hola>> home(@RequestParam("content")String content, Pageable pageable) throws JsonProcessingException {
@@ -40,11 +44,10 @@ public class UserController {
         return ResponseEntity.ok().body(byKeyWord);
     }
 
-//    @Scheduled(fixedRate = 1000)
-//    public void test(){
-//        log.info("scheduled test");
-//    }
-
+    @GetMapping("/getCatchPost")
+    public ResponseEntity<Page<CatchEntity>> getCatchPost(Pageable pageable){
+        return ResponseEntity.ok(catchCrawller.getPost(pageable));
+    }
 //    @Scheduled(fixedRate = 30_000)
 //    public void crawlling(){
 //        log.info("starg crallwing");
