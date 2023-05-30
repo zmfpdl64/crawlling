@@ -22,9 +22,9 @@ public class SecurityConfig {
         return http
                 .csrf().disable()
                 .authorizeHttpRequests(authorize ->
-                        authorize.requestMatchers("/**").permitAll()
+                        authorize.anyRequest().permitAll()
                 )
-                .addFilterBefore(new JwtTokenFilter(key, userService), UsernamePasswordAuthenticationFilter.class)
+//                .addFilterBefore(new JwtTokenFilter(key, userService), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
